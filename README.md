@@ -967,5 +967,107 @@ public class ThreadSafeCache {
 1. 共享变量在多线程读取的时候，会被拉倒线程本地，white 在执行时，一直使用的都是本地变量的值，所以后续更改，线程内一直访问不到最新变量，程序会卡死。
 2. 给变量增加 volatile 关键字，保证多线程之间 变量可见性。
 
+![1683827026944](image/README/1683827026944.png)
+
+
+
+# [synchronize 锁对象竞争问题](https://www.bilibili.com/video/BV1Bb411d7SL/?p=44)
+定义了一个类T，其中定义了一个 synchronized 方法do `A=new T(); B=new T()`。当一个线程进入 A 对象的 do 方法后，另一个线程是否可进入 B 对象的 do 方法？
+
+## 关键点：
+1. synchronize 普通方法，锁的是当前对象
+2. synchronize 静态方法，锁的是 class
+3. 同步代码块，可以手动指定锁对象是啥
+
+
+## 答案：
+[Test11.java](./Test11.java)
+互不影响
+
+
+
+# [多线程有几种实现方法，都是什么？](https://www.bilibili.com/video/BV1Bb411d7SL/?p=45)
+1. 实现 Runnable 接口 void 返回值
+2. 实现 Callable 接口 可以指定返回值
+
+[CallableDemo.java](./CallableDemo.java)
+
+
+
+# [同步有几种实现方法，都是什么？](https://www.bilibili.com/video/BV1Bb411d7SL/?p=46)
+- 非阻塞
+  1. volatile
+  2. cas 及 atomic 系列实现
+- 阻塞
+  1. wait()
+  2. sleep
+  3. synchronized
+  4. Lock 的实现
+     1. ReentrantLock
+     2. ReentrantReadWriteLock 等
+     3. condition.await()
+  5. CountDownLatch
+  6. CyclicBarrier
+  7. Semaphore
+  8. BlockingQueue
+
+
+
+# [Thread 类的常用方法](https://www.bilibili.com/video/BV1Bb411d7SL/?p=47)
+- start()
+- run()
+- ~~exit()~~
+- getPrioity()
+
+
+
+# [Exception 父类问题](https://www.bilibili.com/video/BV1Bb411d7SL/?p=48)
+```java
+public class Exception extends Throwable {
+    @java.io.Serial
+    static final long serialVersionUID = -3387516993124229948L;
+```
+
+```java
+public class Throwable implements Serializable {
+    /** use serialVersionUID from JDK 1.0.2 for interoperability */
+    @java.io.Serial
+    private static final long serialVersionUID = -3042686055658047285L;
+```
+
+
+
+# [String 值比对问题](https://www.bilibili.com/video/BV1Bb411d7SL/?p=49)
+```java
+String s1 = "hello";
+String s2 = "he" + new String("llo");
+System.out.println(s1 == s2); // false
+```
+
+
+
+# [构造方法问题](https://www.bilibili.com/video/BV1Bb411d7SL/?p=50)
+- class 中的 constructor 可以省略
+- constructor 必须与 class 同名，方法也可以与 class 同名
+- constructor 在一个对象被 new 时执行
+- 一个 class 可以定义多个 constructor
+
+
+
+# [Thread的run方法](https://www.bilibili.com/video/BV1Bb411d7SL/?p=51)
+```java
+Thread t = new Thread(() -> {
+    System.out.println("pong");
+});
+thread.run(); // 这里是 run 方法，不是 start 方法，根本没有开启线程
+System.out.println("ping");
+```
+
+
+
+# [GC守护线程和volatile问题](https://www.bilibili.com/video/BV1Bb411d7SL/?p=52)
+GC 守护线程，当所有线程都是守护线程时，JVM 会退出。
+
+volatile 保证变量的可见性，但是不保证原子性。
 
 
