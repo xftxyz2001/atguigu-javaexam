@@ -1,19 +1,60 @@
 public class Test {
 
+    static Object lockA = new Object();
+    static Object lockB = new Object();
+
     public static void main(String[] args) {
 
-        try {
-            int i = 100 / 0;
-            System.out.print(i);
-        } catch (Exception e) {
-            System.out.println(1);
-            throw new RuntimeException();
-        } finally {
-            System.out.println(2);
-        }
-        System.out.println(3);
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                System.out.println(Thread.currentThread() + " 尝试获取锁A");
+
+                synchronized (lockA) {
+
+                    System.out.println(Thread.currentThread() + " 获取到了锁A");
+
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    System.out.println(Thread.currentThread() + " 尝试获取锁B");
+
+                    synchronized (lockB) {
+                        System.out.println(Thread.currentThread() + " 获取到了锁B");
+                    }
+                }
+            }
+        }).start();
+
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                System.out.println(Thread.currentThread() + " 尝试获取锁B");
+
+                synchronized (lockB) {
+
+                    System.out.println(Thread.currentThread() + " 获取到了锁B");
+
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    System.out.println(Thread.currentThread() + " 尝试获取锁A");
+
+                    synchronized (lockA) {
+                        System.out.println(Thread.currentThread() + " 获取到了锁A");
+                    }
+                }
+            }
+        }).start();
     }
 }
-// 1
-// 2
-// Exception in thread "main" java.lang.RuntimeException

@@ -600,3 +600,114 @@ aop 面向切面编程使用非常广泛，几乎适用于一切需要统一化�
 
 
 
+# [列举 linux 的常用命令](https://www.bilibili.com/video/BV1Bb411d7SL/?p=26)
+1. find 、rm、rmdir、mv、cp、cat、pwd、chmod、kill、ping、ifconfig 
+2. tail、ps、grep、netstat、echo、ssh、scp、top、mpstat、free、df
+
+
+
+# [列举知道并用过的其他前沿技术](https://www.bilibili.com/video/BV1Bb411d7SL/?p=27)
+
+## 关键点：
+1. 加分项，经常出现在笔试题中，目的是快速了解你的知识宽度并且希望团队中能吸收外界的知识
+2. 前沿的技术多数是业务创新，技术还是这几十年的积累
+3. 平时多看书 多学习
+
+
+## 答案：
+1. go 语言
+2. 物联网 IoT 嵌入式开发 树莓派小车 摄像头
+3. 低代码数据中台
+4. jdk 新特性，g1, zgc
+5. 区块链
+6. 容器化云原生与监控 Prometheus + Grafana
+7. java 高性能游戏开发
+8. DDD（Domain-Driven Design 领域驱动设计）
+9. 响应式编程与异步网络编程
+10. 推荐系统
+11. 高并发系统架构 nginx + lua
+12. chatgpt
+13. 量子计算 三进制实现 火箭回收技术 常温超导。。。
+
+
+
+# [JVM 运行时数据区域包含哪几部分？](https://www.bilibili.com/video/BV1Bb411d7SL/?p=28)
+![1683818931273](image/README/1683818931273.png)
+
+
+
+# [多线程中 start 方法和 run 方法的区别是什么？](https://www.bilibili.com/video/BV1Bb411d7SL/?p=29)
+1. start 用来启动线程，改变的是线程的状态，由就绪进入执行
+2. run 方法中包含要执行的代码，在执行状态时运行里面的代码，方法返回值是 void
+
+
+
+# [简单写一个会导致死锁的程序](https://www.bilibili.com/video/BV1Bb411d7SL/?p=30)
+1. 获得锁后不释放，其他线程一直拿不到锁
+2. 解决：不要嵌套获得多个锁
+
+```java
+public class Test {
+
+    static Object lockA = new Object();
+    static Object lockB = new Object();
+
+    public static void main(String[] args) {
+
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                System.out.println(Thread.currentThread() + " 尝试获取锁A");
+
+                synchronized (lockA) {
+
+                    System.out.println(Thread.currentThread() + " 获取到了锁A");
+
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    System.out.println(Thread.currentThread() + " 尝试获取锁B");
+
+                    synchronized (lockB) {
+                        System.out.println(Thread.currentThread() + " 获取到了锁B");
+                    }
+                }
+            }
+        }).start();
+
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                System.out.println(Thread.currentThread() + " 尝试获取锁B");
+
+                synchronized (lockB) {
+
+                    System.out.println(Thread.currentThread() + " 获取到了锁B");
+
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    System.out.println(Thread.currentThread() + " 尝试获取锁A");
+
+                    synchronized (lockA) {
+                        System.out.println(Thread.currentThread() + " 获取到了锁A");
+                    }
+                }
+            }
+        }).start();
+    }
+}
+```
+
+
+
