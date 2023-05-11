@@ -1,0 +1,16 @@
+CREATE TABLE `dept` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `deptName` VARCHAR(30) DEFAULT NULL,
+    `address` VARCHAR(40) DEFAULT NULL,
+    ceo INT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = INNODB AUTO_INCREMENT = 1;
+
+CREATE TABLE `emp` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `empno` INT NOT NULL,
+    `name` VARCHAR(20) DEFAULT NULL,
+    `age` INT(3) DEFAULT NULL,
+    `deptId` INT(11) DEFAULT NULL,
+    PRIMARY KEY (`id`) #CONSTRAINT `fk_dept_id` FOREIGN KEY (`deptId`) REFERENCES `t_dept` (`id`)
+) ENGINE = INNODB AUTO_INCREMENT = 1;
