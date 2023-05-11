@@ -443,3 +443,43 @@ jvm 是 java 虚拟机，我们的 class 文件运行在虚拟机上，通过虚
 
 
 
+# [浅谈 ReentrantLock 的设计](https://www.bilibili.com/video/BV1Bb411d7SL/?p=20)
+1. ReentrantLock 是在**多线程竞争资源**时使用的锁，他是一个独占锁、可重入锁，也是悲观锁
+2. ReentrantLock 支持公平锁，对公平和非公平锁有不同的实现逻辑
+3. ReentrantLock 使用 aqs（AbstractQueuedSynchronizer）来实现的获取锁的线程队列等待的过程
+4. 内部使用了原子操作类 cas 比较线程与对应的锁关系
+5. 内部支持 newCondition 来灵活的控制获取到锁的线程的阻塞与释放
+
+[AqsDemo](./AqsDemo.java)
+
+
+
+# [说一下 mysql 中事务的实现原理](https://www.bilibili.com/video/BV1Bb411d7SL/?p=21)
+https://dev.mysql.com/doc/refman/5.7/en/innodb-multi-versioning.html
+
+Multi-Version Concurrency Control 多版本并发控制，*MVCC* 是一种并发控制的方法，一般在数据库管理系统中，实现对数据库的并发访问
+
+InnoDB是一个多版本的存储引擎。它保存有关已更改行的旧版本的信息，以支持并发和回滚等事务特性。这些信息存储在一个称为回滚段的数据结构中的系统表空间或undo表空间中。参见第14.6.3.4节“撤消表空间”。InnoDB使用回滚段中的信息来执行事务回滚所需的撤消操作。它还使用这些信息构建行的早期版本，以实现一致的读取
+
+MVCC 的实现依赖于：隐藏字段、Read View、undo log
+
+**隐藏字段**
+- A 6-byte `DB_TRX_ID` 用来标识最近一次对本行记录做修改 (insert 、update) 的事务的标识符 ，即最后一次修改本行记录的事务 id。 如果是 delete 操作， 在 InnoDB 存储引擎内部也属于一次 update 操作，即更新行中的一个特殊位 ，将行标识为己删除，并非真正删除。
+- A 7-byte `DB_ROLL_PTR` 回滚指针，指向该行的 undo log 。如果该行未被更新，则为空。
+- A 6-byte `DB_ROW_ID` 如果没有设置主键且该表没有唯一非空索引时，`InnoDB` 会使用该 id 来生成聚簇索引。
+
+**Read View**
+不同的事务隔离级别中，当有事物在执行过程中修改了数据（更新版本号），在并发事务时需要判断一下版本链中的哪个版本是当前事务可见的。为此InnoDB有了ReadView的概念，使用ReadView来记录和隔离不同事务并发时此记录的哪些版本是对当前访问事物可见的。
+
+**undo log**
+除了用来回滚数据，还可以读取可见版本的数据。以此实现非锁定读
+
+
+## 答案：
+1. mysql 是由 mvcc 实现的事务控制
+2. MVCC 的实现依赖于：隐藏字段、Read View、undo log
+3. 在不同的事务隔离级别下通过设置readview内容，控制了哪些数据可见于不可见
+
+
+
+# 16 编写一个基于线程安全的懒加载单例模式

@@ -13,3 +13,16 @@ public class TestService {
         jt.update("insert into test(name) values('b')");
     }
 }
+
+@interface Service {
+}
+
+@interface Transactional {
+}
+
+@interface Autowired {
+}
+
+interface JdbcTemplate {
+    void update(String sql);
+}
