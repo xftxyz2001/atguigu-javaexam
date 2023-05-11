@@ -711,3 +711,261 @@ public class Test {
 
 
 
+# [对于高并发、高可用问题的常用处理方式](https://www.bilibili.com/video/BV1Bb411d7SL/?p=31)
+
+## 对于高并发
+1. 寻找瓶颈
+2. 分治思想，业务拆分，流程拆分
+3. 扩容
+4. 限流
+5. 分流 ，cdn（Content Delivery Network 内容分发网络）
+6. 流量清洗 waf（Web Application Firewall 网络应用防火墙）
+7. 多级缓存设计 后端缓存，客户端缓存
+8. 日志溯源
+9. 资源隔离
+10. 弹性扩缩容
+11. 降级处理 前后端 兜底数据
+
+
+## [对于高可用](https://www.bilibili.com/video/BV1Bb411d7SL/?p=32)
+1. 容器化管理 HA（High Availability 高可用）
+2. keepalived
+
+![1683825060473](image/README/1683825060473.png)
+
+
+
+# [JVM 是什么？请简述一下 JVM 加载 class 文件的原理机制。](https://www.bilibili.com/video/BV1Bb411d7SL/?p=33)
+
+## 关键点：
+1. 类加载器
+2. 魔数
+3. 元空间
+
+负责加载 class 文件， class 文件在文件开头有特定的文件标示，并且 ClassLoader 只负责 class 文件的加载，至于它是否可以运行，则由 Execution Engine 决定。
+
+**魔数**
+- Class 文件开头的四个字节的无符号整数称为魔数(Magic Number)。
+- 魔数是 Class 文件的标识。值是固定的，为 `0xCAFEBABE`
+- 如果一个 Class 文件的头四个字节不是 `0xCAFEBABE` ，虚拟机在进行文件校验的时候会报错。使用魔数而不是扩展名来识别 Class 文件，主要是基于安全方面的考虑，因为文件扩展名可以随意更改。
+
+![1683825179545](image/README/1683825179545.jpg)
+
+类加载器分为四种：前三种为虚拟机自带的加载器。
+- 启动类加载器（Bootstrap）C++
+  - 负责加载 `$JAVA_HOME` 中 jre/lib/**rt.jar** 里所有的 class ，由 C++ 实现，不是 ClassLoader 子类
+  - 也叫系统类加载器，负责加载 **classpath** 中指定的 jar 包及目录中 class
+- 扩展类加载器（Extension）Java
+  - 负责加载 java 平台中 **扩展功能** 的一些 jar 包，包括 `$JAVA_HOME` 中 `jre/lib/*.jar` 或 `-Djava.ext.dirs` 指定目录下的 jar 包
+- 应用程序类加载器（AppClassLoader）Java
+- 用户自定义加载器  Java.lang.ClassLoader 的子类，用户可以定制类的加载方式
+
+工作过程：
+1. 当 AppClassLoader 加载一个 class 时，它首先不会自己去尝试加载这个类，而是把类加载请求委派给父类加载器 ExtClassLoader 去完成。
+2. 当 ExtClassLoader 加载一个 class 时，它首先也不会自己去尝试加载这个类，而是把类加载请求委派给 BootStrapClassLoader 去完成。
+3. 如果 BootStrapClassLoader 加载失败（例如在 $JAVA_HOME/jre/lib 里未查找到该 class ），会使用 ExtClassLoader 来尝试加载；
+4. 若 ExtClassLoader 也加载失败，则会使用 AppClassLoader 来加载
+5. 如果 AppClassLoader 也加载失败，则会报出异常 ClassNotFoundException
+
+其实这就是所谓的**双亲委派模型**。简单来说：如果一个类加载器收到了类加载的请求，它首先不会自己去尝试加载这个类，而是把**请求委托给父加载器去完成，依次向上**。
+
+![1683825298743](image/README/1683825298743.jpg)
+
+好处：**防止内存中出现多份同样的字节码**(安全性角度)
+比如加载位于 rt.jar 包中的类 java.lang.Object，不管是哪个加载器加载这个类，最终都是委托给顶层的启动类加载器进行加载，这样就保证了使用不同的类加载器最终得到的都是同样一个 Object对象。 
+
+
+
+# [数据连接池的工作机制是什么？](https://www.bilibili.com/video/BV1Bb411d7SL/?p=34)
+
+## 关键点：
+1. 连接池与线程池实现原理一样
+2. 限流与复用
+3. 数据库建立一个连接的开销要比客户端大
+4. 数据库连接池负责分配、管理和释放数据库连接，它允许应用程序重复使用一个现有的数据库连接，而再不是重新建立一个
+
+
+## 答案：
+1. 预先创建好一些数据库连接，放到连接池中
+2. 连接池中设置最小连接数和最大连接数
+3. 最小连接不断开和数据库的连接
+4. 超过最小链接的那些线程，在长时间不使用时会被回收，也就是断开和数据库的连接
+5. 所有向数据库发送请求的业务必须通过连接池获得数据库连接
+6. 当连接全部在使用中，可以使用队列等待
+
+
+
+# 写一个正则表达式，验证用户输入的数据是不是身份证号码
+`^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$`
+
+
+
+# [代码题 继承](https://www.bilibili.com/video/BV1Bb411d7SL/?p=35)
+```java
+public class Test extends Father {
+
+    public static void main(String[] args) {
+        Test test = new Test();
+        System.out.println(test.getName()); // father
+    }
+
+}
+
+class Father {
+
+    private String name = "father";
+
+    public String getName() {
+        return name;
+    }
+}
+```
+
+
+
+# [代码题 父子异常](https://www.bilibili.com/video/BV1Bb411d7SL/?p=36)
+```java
+public class Test {
+    public int div(int a, int b) {
+        try {
+            return a / b;
+        } catch (Exception e) {
+            System.out.println("Exception");
+        } catch (NullPointerException e) { // Unreachable catch block for NullPointerException. It is already handled by
+                                           // the catch block for Exception
+            System.out.println("ArithmeticException");
+        } catch (ArithmeticException e) { // Unreachable catch block for ArithmeticException. It is already handled by
+                                          // the catch block for Exception
+            System.out.println("ArithmeticException");
+        } finally {
+            System.out.println("finally");
+        }
+        return 0;
+    }
+
+    public static void main(String[] args) {
+        Test demo = new Test();
+        System.out.println("商是:" + demo.div(9, 0));
+    }
+
+}
+```
+
+
+
+# [哪一个List实现了最快插入？](https://www.bilibili.com/video/BV1Bb411d7SL/?p=37)
+- Arraylist ：数组实现的，查询，修改比较快
+- **Linkedlist** ：链表实现，插入，删除比较快，直接在最后插入数据即可
+- Vector ：jdk1.0就有 线程安全，效率特别低
+
+
+
+# [存在使 `i+1<i` 的数吗？](https://www.bilibili.com/video/BV1Bb411d7SL/?p=38)
+基础数据类型的最大值 + 1 会变负数
+[TestOverflow.java](./TestOverflow.java)
+
+> 不通过构造函数也能创建对象吗？是 
+
+
+
+# [Java 接口的修饰符可以为](https://www.bilibili.com/video/BV1Bb411d7SL/?p=39)
+- 接口默认是 abstract 的，默认可以不写
+- 接口的方法 1.8 以后可以有 static 和 default 的默认实现， static 不能重写
+
+
+
+# [`ArrayList list = new ArrayList(20)` 中的 list 扩充几次](https://www.bilibili.com/video/BV1Bb411d7SL/?p=40)
+因为有传参，没必要扩容，所以次数是0；源码如下：
+```java
+public ArrayList(int initialCapacity) {
+    if (initialCapacity > 0) {
+        this.elementData = new Object[initialCapacity];
+    } else if (initialCapacity == 0) {
+        this.elementData = EMPTY_ELEMENTDATA;
+    } else {
+        throw new IllegalArgumentException("Illegal Capacity: "+
+                                            initialCapacity);
+    }
+}
+```
+
+
+
+# [下面哪些是对称加密算法](https://www.bilibili.com/video/BV1Bb411d7SL/?p=41)
+- **DES**
+- **AES**
+- DSA
+- RSA
+
+
+
+# 新建一个流对象，下面哪个选项的代码是错误的？
+- `new BufferedWriter(new FileWriter("a.txt"));`
+- `new BufferedReader(new FileInputStrean("a.dat"));` X
+- `new GZIPInputStream(new FileInputStream("a.zip"));`
+- `new ObjectInputStream(new FileInputStream("a.dat"));`
+
+
+
+# [代码题 这什么玩意（挠头）？？？](https://www.bilibili.com/video/BV1Bb411d7SL/?p=42)
+
+## 关键点：
+1. null 是可以被强转成任何类型的
+2. 静态方法不需要实例对象
+
+```java
+public class NULL {
+    public static void haha() {
+        System.out.println("haha");
+    }
+
+    public static void main(String[] args) {
+        ((NULL) null).haha();
+    }
+}
+```
+
+
+
+# [多线程变量同步](https://www.bilibili.com/video/BV1Bb411d7SL/?p=43)
+```java
+public class ThreadSafeCache {
+
+    private int result;
+
+    public int getResult() {
+        return result;
+    }
+
+    public synchronized void setResult(int result) {
+        this.result = result;
+    }
+
+    public static void main(String[] args) {
+        ThreadSafeCache threadSafeCache = new ThreadSafeCache();
+
+        for (int i = 0; i < 8; i++) {
+
+            new Thread(() -> {
+                while (threadSafeCache.getResult() < 100) {
+
+                }
+                System.out.println("我执行了");
+            }).start();
+        }
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        threadSafeCache.setResult(200);
+    }
+}
+```
+
+## 答案：
+1. 共享变量在多线程读取的时候，会被拉倒线程本地，white 在执行时，一直使用的都是本地变量的值，所以后续更改，线程内一直访问不到最新变量，程序会卡死。
+2. 给变量增加 volatile 关键字，保证多线程之间 变量可见性。
+
+
+
