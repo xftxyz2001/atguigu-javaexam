@@ -450,7 +450,7 @@ jvm 是 java 虚拟机，我们的 class 文件运行在虚拟机上，通过虚
 4. 内部使用了原子操作类 cas 比较线程与对应的锁关系
 5. 内部支持 newCondition 来灵活的控制获取到锁的线程的阻塞与释放
 
-[AqsDemo](./AqsDemo.java)
+[AqsDemo.java](./AqsDemo.java)
 
 
 
@@ -482,4 +482,121 @@ MVCC 的实现依赖于：隐藏字段、Read View、undo log
 
 
 
-# 16 编写一个基于线程安全的懒加载单例模式
+# [编写一个基于线程安全的懒加载单例模式](https://www.bilibili.com/video/BV1Bb411d7SL/?p=22)
+
+## 关键点：
+1. 多线程访问
+2. 防止直接 new 对象
+3. 使用锁
+4. 内部类加载实现、cas实现等
+
+[Test03.java](./Test03.java)
+
+
+
+# [值传递和引用传递问题](https://www.bilibili.com/video/BV1Bb411d7SL/?p=23)
+
+## 关键点：
+1. 引用传递
+2. 堆栈内存分析
+
+```java
+public class Test {
+
+    public static void main(String args[]) {
+        StringBuffer a = new StringBuffer("A");
+        StringBuffer b = new StringBuffer("B");
+        operater(a, b);
+
+        System.out.println(a + " " + b); // AB B
+    }
+
+    public static void operater(StringBuffer x, StringBuffer y) {
+        x.append(y);
+        y = x;
+    }
+}
+```
+
+![1683822169763](image/README/1683822169763.png)
+
+
+
+# [异常中的 return 问题](https://www.bilibili.com/video/BV1Bb411d7SL/?p=24)
+
+## 关键点：
+1. 在 finally 中 return 后不再执行后续代码
+2. catch 中 return 不影响 finally 的执行
+3. try catch 后的 finally 一定会执行
+
+```java
+public class Test {
+    public static String output = " ";
+
+    public static void foo(int i) {
+        try {
+            if (i == 1) {
+                throw new Exception();
+            }
+        } catch (Exception e) {
+            output += "2";
+            return;
+        } finally {
+            output += "3";
+            return;
+        }
+        output += "4";
+    }
+
+    public static void main(String[] args) {
+        foo(0);
+        foo(1);
+        System.out.println(output);
+    }
+}
+```
+
+
+## 关键点：
+1. 异常会阻断正常代码运行
+2. finally 一定会执行
+
+```java
+public class Test {
+
+    public static void main(String[] args) {
+        try {
+            int i = 100 / 0;
+            System.out.print(i);
+        } catch (Exception e) {
+            System.out.println(1);
+            throw new RuntimeException();
+        } finally {
+            System.out.println(2);
+        }
+        System.out.println(3);
+    }
+}
+// 1
+// 2
+// Exception in thread "main" java.lang.RuntimeException
+```
+
+
+
+# [Spring 的 AOP 的使用情景有哪些？简述其实现原理](https://www.bilibili.com/video/BV1Bb411d7SL/?p=25)
+
+## 关键点：
+aop 面向切面编程使用非常广泛，几乎适用于一切需要统一化处理的场景
+
+
+## 答案：
+1. 统一日志处理
+2. 统一异常处理
+3. 访问限制（权限，限流等）
+4. 事务处理
+5. 缓存管理等
+6. aop是面向切面编程，通过代理的方式（jdk或cglib）为程序统一添加功能，解决公共问题
+
+
+
