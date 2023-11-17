@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天气查询</title>
+</head>
+
+<body>
+    <h1>天气查询</h1>
+    <form>
+        <label for="city">城市：</label>
+        <input type="text" id="city" name="city"><br><br>
+        <label for="time">时间：</label>
+        <input type="text" id="time" name="time"><br><br>
+        <button type="button" onclick="getWeather()">查询</button>
+    </form>
+
+    <table id="weatherTable">
+        <thead>
+            <tr>
+                <th>城市X坐标</th>
+                <th>城市Y坐标</th>
+                <th>城市名称</th>
+                <th>中心名称</th>
+                <th>天气状况</th>
+                <th>最低温度</th>
+                <th>最高温度</th>
+                <th>风向</th>
+            </tr>
+        </thead>
+        <tbody id="weatherData">
+        </tbody>
+    </table>
+
+    <script>
+        function getWeather() {
+            var city = document.getElementById('city').value;
+            var time = document.getElementById('time').value;
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "http://localhost:8080/weather", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.code === 0) {
+                        displayWeather(response.data.cityList);
+                    } else {
+                        alert(response.message);
+                    }
+                }
+            };
+
+            var data = {
+                "src": city,
+                "month": time
+            };
+
+            xhr.send(JSON.stringify(data));
+        }
+
+        function displayWeather(cityList) {
+            var tableBody = document.getElementById("weatherData");
+            tableBody.innerHTML = "";
+
+            for (var i = 0; i < cityList.length; i++) {
+                var row = document.createElement("tr");
+
+                var cityXCell = document.createElement("td");
+                cityXCell.textContent = cityList[i].cityX;
+                row.appendChild(cityXCell);
+
+                var cityYCell = document.createElement("td");
+                cityYCell.textContent = cityList[i].cityY;
+                row.appendChild(cityYCell);
+
+                var cityNameCell = document.createElement("td");
+                cityNameCell.textContent = cityList[i].cityname;
+                row.appendChild(cityNameCell);
+
+                var centerNameCell = document.createElement("td");
+                centerNameCell.textContent = cityList[i].centername;
+                row.appendChild(centerNameCell);
+
+                var stateCell = document.createElement("td");
+                stateCell.textContent = cityList[i].stateDetailed;
+                row.appendChild(stateCell);
+
+                var minTempCell = document.createElement("td");
+                minTempCell.textContent = cityList[i].tem1;
+                row.appendChild(minTempCell);
+
+                var maxTempCell = document.createElement("td");
+                maxTempCell.textContent = cityList[i].tem2;
+                row.appendChild(maxTempCell);
+
+                var windDirCell = document.createElement("td");
+                windDirCell.textContent = cityList[i].windDir;
+                row.appendChild(windDirCell);
+
+                tableBody.appendChild(row);
+            }
+        }
+    </script>
+</body>
+
+</html>
