@@ -16,6 +16,8 @@ import com.xftxyz.weatherapi.exception.BusinessException;
 import com.xftxyz.weatherapi.pojo.WeatherObject;
 import com.xftxyz.weatherapi.service.WeatherService;
 
+import java.util.WeakHashMap;
+
 @Service
 public class WeatherServiceImpl implements WeatherService {
 
@@ -25,8 +27,14 @@ public class WeatherServiceImpl implements WeatherService {
     @Autowired
     RestTemplate restTemplate;
 
+    // 弱引用缓存
+     private WeakHashMap<String, WeatherObject> cache = new WeakHashMap<>();
+
     @Override
     public WeatherObject getWeather(String city, String month) {
+        if (cache.containsKey(city + month)) {
+            return cache.get(city + month);
+        }
 
         // 获取配置信息
         String authorization = "APPCODE " + weatherApiConfig.getAppcode();
@@ -35,7 +43,8 @@ public class WeatherServiceImpl implements WeatherService {
         // 构造请求头
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.add("Authorization", authorization);
+        headers.add("'Authorization", authorization);
+
 
         // 构造请求体
         MultiValueMap<String, String> paraameterMap = new LinkedMultiValueMap<>();
@@ -53,7 +62,11 @@ public class WeatherServiceImpl implements WeatherService {
             throw new BusinessException("请求失败");
         }
         String body = responseEntity.getBody();
-        return new WeatherObject(body);
+        WeatherObject weatherObject = new WeatherObject(body);
+        // 缓存
+        cache.put(city + month, weatherObject);
+
+        return weatherObject;
     }
 
 }

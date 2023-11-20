@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.xftxyz.weatherapi.exception.BusinessException;
 
 public class WeatherObject {
     List<CityWeather> cityList;
@@ -26,7 +27,7 @@ public class WeatherObject {
 
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new BusinessException("解析天气数据失败");
         }
     }
 
