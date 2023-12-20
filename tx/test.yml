@@ -1,0 +1,37 @@
+config:
+    name: testcase description
+    variables: {}
+teststeps:
+-   name: /test
+    request:
+        headers:
+            Sec-Fetch-Dest: document
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: none
+            Sec-Fetch-User: ?1
+            User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
+                (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0
+            sec-ch-ua: '"Not_A Brand";v="8", "Chromium";v="120", "Microsoft Edge";v="120"'
+            sec-ch-ua-mobile: ?0
+            sec-ch-ua-platform: '"Windows"'
+        method: GET
+        params:
+            a: ${get_random()}
+            b: ${get_random_str()}
+        url: http://localhost:5000/test
+    validate:
+    -   eq:
+        - status_code
+        - 200
+    -   eq:
+        - headers.Content-Type
+        - application/json
+    -   eq:
+        - content.error_message
+        - success
+    -   eq:
+        - content.reference
+        - '111'
+    -   eq:
+        - content.error_code
+        - '0'
