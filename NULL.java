@@ -5,5 +5,6 @@ public class NULL {
 
     public static void main(String[] args) {
         ((NULL) null).haha();
+        "String".indexOf("0");
     }
 }
